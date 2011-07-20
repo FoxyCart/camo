@@ -1,5 +1,5 @@
 (function() {
-  var Crypto, EXCLUDED_HOSTS, Fs, Http, QueryString, RESTRICTED_IPS, Url, camo_hostname, current_connections, excluded, finish, four_oh_four, hexdec, log, logging_enabled, port, server, shared_key, started_at, total_connections, version;
+  var Crypto, EXCLUDED_HOSTS, Fs, Http, QueryString, RESTRICTED_IPS, Url, cacheable, camo_hostname, current_connections, excluded, finish, four_oh_four, hexdec, log, logging_enabled, port, server, shared_key, started_at, total_connections, version;
   Fs = require('fs');
   Url = require('url');
   Http = require('http');
@@ -44,6 +44,9 @@
       }
       return buf.toString();
     }
+  };
+  cacheable = function(content_type) {
+    return content_type.slice(0, 5) === 'image' || content_type === "text/css";
   };
   server = Http.createServer(function(req, resp) {
     var dest_url, encoded_url, hmac, hmac_digest, query_digest, query_path, src, srcReq, transferred_headers, url, url_type, _base, _ref;
@@ -127,7 +130,7 @@
                 });
                 switch (srcResp.statusCode) {
                   case 200:
-                    if (newHeaders['content-type'] && newHeaders['content-type'].slice(0, 5) !== 'image') {
+                    if (newHeaders['content-type'] && !cacheable(newHeaders['content-type'])) {
                       four_oh_four(resp, "Non-Image content-type returned");
                     }
                     log(newHeaders);

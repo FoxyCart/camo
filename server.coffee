@@ -42,6 +42,11 @@ hexdec = (str) ->
       buf[i/2] = parseInt(str[i..i+1], 16)
     buf.toString()
 
+cacheable = (content_type) ->
+  content_type.slice(0, 5) == 'image' ||
+  content_type == "text/css"
+
+
 server = Http.createServer (req, resp) ->
   if req.method != 'GET' || req.url == '/'
     resp.writeHead 200
@@ -134,7 +139,7 @@ server = Http.createServer (req, resp) ->
 
               switch srcResp.statusCode
                 when 200
-                  if newHeaders['content-type'] && newHeaders['content-type'].slice(0, 5) != 'image'
+                  if newHeaders['content-type'] && not cacheable(newHeaders['content-type'])
                     four_oh_four(resp, "Non-Image content-type returned")
 
                   log newHeaders
